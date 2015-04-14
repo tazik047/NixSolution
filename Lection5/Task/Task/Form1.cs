@@ -28,16 +28,20 @@ namespace Task
 
         private volatile bool work = true;
 
+        private ManualResetEvent workEvent;
+
+
         public Form1()
         {
             InitializeComponent();
             queueExceptions = new Queue<Exception>();
+            workEvent = new ManualResetEvent(false);
             Thread thread1 = new Thread(ThreadWorker);
             Thread thread2 = new Thread(ThreadWorker);
             thread1.Name = "Первый поток";
             thread2.Name = "Второй поток";
-            thread1.IsBackground = true;  //Делаем потоки фоновыми для того, чтобы они завершались
-            thread2.IsBackground = true;  //при завершении основного потока. 
+            thread1.IsBackground = true;  // Делаем потоки фоновыми для того, чтобы они завершались
+            thread2.IsBackground = true;  // при завершении основного потока. 
             thread1.Start();
             thread2.Start();
         }
@@ -45,34 +49,40 @@ namespace Task
         public void ThreadWorker()
         {
             string nameOfThread = Thread.CurrentThread.Name;
+            // Для каждого потока будет разное начальное состояние рандома.
             Random rnd = new Random(nameOfThread.GetHashCode());
+
+            Type[] constrctorTypes = { typeof(String) };
+            object[] paramsToConstructor = { nameOfThread };
+
             while (true)
             {
                 while (work)
                 {
                     try
                     {
-                        Thread.Sleep(rnd.Next(1000, 10000)); //выполнение какой-то работы 1-10 сек.
-                        //Не выбрасываем исключение если была нажата кнопка приостановки потока, пока поток спал
+                        Thread.Sleep(rnd.Next(1000, 10000)); // Выполнение какой-то работы в течении 1-10 сек.
+                        // Не выбрасываем исключение если была нажата кнопка приостановки потока, пока поток спал
                         if (!work) break;
                         int index = rnd.Next(exceptions.Length);
-                        //Используем отражение, для того, чтобы создать экземпялр одного из классов исключений.
+                        // Используем отражение, для того, чтобы создать экземпялр одного из классов исключений.
                         Exception e = (Exception)exceptions[index]
-                            .GetConstructor(new[] { typeof(String) })
-                            .Invoke(new object[] { nameOfThread });
+                            .GetConstructor(constrctorTypes)
+                            .Invoke(paramsToConstructor);
                         throw e;
                     }
 
                     catch (Exception ex)
                     {
-                        lock (locker) //блокируем доступ к очереди пока с ней работает другой поток.
-                        {
+                        //блокируем доступ к очереди пока с ней работает другой поток.
+                        lock (locker)
                             queueExceptions.Enqueue(ex);
-                            //Invoke(func); вызывает deadlock
-                        }
+                        // Уведомляем главный поток о появлении исключения.
                         Invoke((Action)ExceptionHandler);
                     }
                 }
+                //Ожидаем сигнала из главного потока о возобновлении работы потока
+                workEvent.WaitOne();
             }
 
         }
@@ -82,6 +92,7 @@ namespace Task
             Exception e;
             lock (locker)
                 e = queueExceptions.Dequeue();
+
             richTextBox1.AppendText("В потоке ");
             richTextBox1.AppendBoldText(string.Format("\"{0}\"", e.Message));
             richTextBox1.AppendText(" произошло исключение: ");
@@ -92,8 +103,13 @@ namespace Task
 
         private void button1_Click(object sender, EventArgs e)
         {
+            
+            button1.Text = !work ? "Остановить генерацию ошибок" : "Возобновить генерацию ошибок";
+            if (!work)
+                workEvent.Set(); // Сигнализируем потокам о возобновлении работы.
+            else
+                workEvent.Reset(); // Блокируем потоки до ожидания сигнала о возобновлении их работы.
             work = !work;
-            button1.Text = work ? "Остановить генерацию ошибок" : "Возобновить генерацию ошибок";
         }
     }
 }
