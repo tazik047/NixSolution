@@ -13,49 +13,67 @@ namespace Task
         {
             var employees = Deserialize();
             for (int i = 0; i < employees.Count; i++)
-            {
-                print(i, employees[i]);
-            }
-            var sortedEmps = sortEmployeess(employees);
+                Print(i, employees[i]);
+            var sortedEmps = SortEmployees(employees);
             Serialize(sortedEmps);
         }
 
         static List<Employee> Deserialize()
         {
-            List<Employee> employees;
-            using (var f = File.OpenRead("my.xml"))
+            Stream file = null;
+            try
             {
+                file = File.OpenRead("my.xml");
                 // Создаем объект для десериализации списка Employee с рутовой нодой: Employees.
                 XmlSerializer xml = new XmlSerializer(typeof(List<Employee>),
                     new XmlRootAttribute("Employees"));
-                employees = (List<Employee>)xml.Deserialize(f);
+                return (List<Employee>)xml.Deserialize(file);
             }
-            return employees;
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine(
+                    "Не был найден файл my.xml, в котором должен храниться список сотрудников в XML формате.");
+                return new List<Employee>();
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine("Файл имеет неправильный формат.\n" +
+                                  "Возможно вы не так назвали рутовую ноду(ее необходимо назвать Employee.)\n" +
+                                  "Возможно вы не так назвали или не указали один из элементов Employee.\n" +
+                                  "Дополнительные сведения: {0}", ex.Message);
+                return new List<Employee>();
+            }
+            finally
+            {
+                if (file != null)
+                    file.Close();
+            }
+
         }
 
-        static void print(int index, Employee e)
+        static void Print(int index, Employee e)
         {
             // Получаем значение закрытого поля EmployeeID
-            string id = (string)getValueFromPrivateField("EmployeeID", e);
+            string id = getValueFromPrivateField<string>("EmployeeID", e);
             // Получаем значение закрытого поля addres
-            string address = (string)getValueFromPrivateField("address", e);
+            string address = getValueFromPrivateField<string>("address", e);
 
             Console.WriteLine("{0}, Last Name: {1}, First Name: {2}, Age: {3}, Department: {4}, Address: {5}, id: {6}",
                 index, e.LastName, e.FirstName, e.Age, e.Department, address, id);
         }
 
-        static List<Employee> sortEmployeess(IEnumerable<Employee> emps)
+        static List<Employee> SortEmployees(IEnumerable<Employee> emps)
         {
             //Выбираем всех сотрудников в возрасте 25-35 и сортируем их по закрытом поля EmployeeID
             return emps.Where(e => e.Age > 24 && e.Age < 36)
                 .OrderBy(
-                    e => getValueFromPrivateField("EmployeeID", e))
+                    e => getValueFromPrivateField<string>("EmployeeID", e))
                 .ToList();
         }
 
-        static object getValueFromPrivateField(string name, object target)
+        private static T getValueFromPrivateField<T>(string name, object target)
         {
-            return target.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance).
+            return (T)target.GetType().GetField(name, BindingFlags.NonPublic | BindingFlags.Instance).
                 GetValue(target);
         }
 
