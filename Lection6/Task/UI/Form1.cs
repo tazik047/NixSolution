@@ -17,6 +17,22 @@ namespace UI
         private ContactManager manager;
         private bool adding;
         private bool editing;
+        private bool startEditOrAdd;
+
+        private List<Control> inputs; 
+
+        private Contact selectedContact
+        {
+            get
+            {
+                if (groupCheckBox.Checked)
+                {
+                    return treeView1.SelectedNode == null ?
+                        null : manager.GetContactById(treeView1.SelectedNode.Name);
+                }
+                return listBox1.SelectedItem == null ? null : (Contact)listBox1.SelectedItem;
+            }
+        }
 
         public Form1()
         {
@@ -25,53 +41,157 @@ namespace UI
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            manager = new ContactManager("data.xml");
-            var c = manager.Contacts;
+            try
+            {
+                manager = new ContactManager("data.xml");
+                foreach (var contact in manager.Contacts)
+                    listBox1.Items.Add(contact);
+                inputs = new List<Control>()
+                {
+                    SurnameTextBox,
+                    NameTextBox,
+                    GroupTextBox,
+                    PhoneMaskedTextBox,
+                    MobliePhoneMaskedTextBox
+                };
+            }
+            catch (System.Xml.XmlException ex)
+            {
+                MessageBox.Show("Не удалось открыть базу контактов.\n" +
+                    "Замените файл data.xml предыдущим рабочим файлом или удалите его.\n" +
+                    "Дополнительная информация: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+            }
         }
 
         private void addButton_Click(object sender, EventArgs e)
         {
             if (!checkBeforeStartMethod())
                 return;
+            startEditOrAdd = true;
             hideOrShowControlsForAdd(true);
         }
 
         private void editButton_Click(object sender, EventArgs e)
         {
+            var c = selectedContact;
+            if (c == null)
+                return;
             enableOrDisableControlsForEdit(true);
+            startEditOrAdd = true;
+
         }
 
         private void delButton_Click(object sender, EventArgs e)
         {
+            var c = selectedContact;
+            if (c == null || !checkBeforeStartMethod())
+                return;
+            if (MessageBox.Show("Вы уверены, что хотите удалить " + c.ToString(),
+                "Предупреждение",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Information) == DialogResult.No)
+                return;
+            manager.Remove(c.Id);
+            if (groupCheckBox.Checked)
+                treeView1.SelectedNode.Remove();
+            else
+                listBox1.Items.Remove(c);
+        }
 
+        private void resetInputs(bool clearText = false)
+        {
+            foreach (var control in inputs)
+            {
+                control.BackColor = Color.White;
+                if (clearText) control.Text = "";
+            }
+            pictureBox1.BackgroundImage = Properties.Resources.unk;
         }
 
         private void saveButton_Click(object sender, EventArgs e)
         {
-
+            bool hasError = false;
+            foreach (var control in inputs)
+            {
+                if (string.IsNullOrWhiteSpace(control.Text))
+                {
+                    hasError = true;
+                    control.BackColor = Color.Red;
+                }
+            }
+            if (hasError)
+            {
+                MessageBox.Show("Не все поля заполнены","Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            resetInputs();
+            if (adding)
+            {
+                var c = new Contact()
+                {
+                    Surname = SurnameTextBox.Text,
+                    Name = NameTextBox.Text,
+                    Group = GroupTextBox.Text,
+                    Phone = PhoneMaskedTextBox.Text,
+                    MobilePhone = MobliePhoneMaskedTextBox.Text,
+                    Photo = new Bitmap(pictureBox1.BackgroundImage)
+                };
+                manager.Add(c);
+                listBox1.Items.Add(c);
+                hideOrShowControlsForAdd(false);
+            }
+            else if (editing)
+            {
+                selectedContact.Surname = SurnameTextBox.Text;
+                selectedContact.Name = NameTextBox.Text;
+                selectedContact.Group = GroupTextBox.Text;
+                selectedContact.Phone = PhoneMaskedTextBox.Text;
+                selectedContact.MobilePhone = MobliePhoneMaskedTextBox.Text;
+                selectedContact.Photo = new Bitmap(pictureBox1.BackgroundImage);
+                manager.Update(selectedContact);
+                enableOrDisableControlsForEdit(false);
+            }
+            startEditOrAdd = false;
         }
 
         private void searchTextBox_TextChanged(object sender, EventArgs e)
         {
-
+            if (!groupCheckBox.Checked)
+            {
+                listBox1.Items.Clear();
+                listBox1.Items.AddRange(manager.SearchContactArray(searchTextBox.Text));
+            }
         }
 
         private void GroupCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             listBox1.Visible = !groupCheckBox.Checked;
-            groupBox1.Visible = groupCheckBox.Checked;
+            treeView1.Visible = groupCheckBox.Checked;
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-
+            var c = selectedContact;
+            if (c == null)
+            {
+                hideOrShowControlsForAdd(false);
+                resetInputs(true);
+                return;
+            }
+            SurnameTextBox.Text = c.Surname;
+            NameTextBox.Text = c.Name;
+            GroupTextBox.Text = c.Group;
+            PhoneMaskedTextBox.Text = c.Phone;
+            MobliePhoneMaskedTextBox.Text = c.MobilePhone;
+            pictureBox1.BackgroundImage = c.Photo;
+            editing = false;
         }
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-
+            listBox1_SelectedIndexChanged(sender, e);
         }
-
 
         private void hideOrShowControlsForAdd(bool show)
         {
@@ -89,13 +209,11 @@ namespace UI
 
         private void enableOrDisableControlsForEdit(bool enable)
         {
-            SurnameTextBox.Enabled = enable;
-            NameTextBox.Enabled = enable;
-            GroupTextBox.Enabled = enable;
-            PhoneMaskedTextBox.Enabled = enable;
-            MobliePhoneMaskedTextBox.Enabled = enable;
+            inputs.ForEach(c => c.Enabled = enable);
+            pictureBox1.Enabled = enable;
+
             saveButton.Enabled = enable;
-            loadButton.Enabled = enable;
+            loadButton.Visible = enable;
             editButton.Enabled = !enable;
         }
 
@@ -117,6 +235,7 @@ namespace UI
                     "Вы уверены?", MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
                     enableOrDisableControlsForEdit(false);
+                    resetInputs(true);
                     editing = false;
                     return true;
                 }

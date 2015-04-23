@@ -11,7 +11,7 @@ namespace Core
 {
     public class Contact
     {
-        private string id;
+        public string Id { get; private set; }
         public string Surname { get; set; }
         public string Name { get; set; }
         public string Group { get; set; }
@@ -19,9 +19,19 @@ namespace Core
         public string MobilePhone { get; set; }
         public Bitmap Photo { get; set; }
 
-        public static explicit operator Contact(XElement element)
+        public Contact()
         {
-            return new Contact();
+            Id = Guid.NewGuid().ToString();
+        }
+
+        public Contact(String id)
+        {
+            Id = id;
+        }
+
+        public override string ToString()
+        {
+            return Surname + " " + Name;
         }
     }
 }
