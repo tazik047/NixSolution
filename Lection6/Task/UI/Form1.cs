@@ -67,6 +67,7 @@ namespace UI
         {
             if (!checkBeforeStartMethod())
                 return;
+            resetInputs(true);
             startEditOrAdd = true;
             hideOrShowControlsForAdd(true);
         }
@@ -261,6 +262,13 @@ namespace UI
                     return true;
                 }
                 return false;
+            }
+            if (startEditOrAdd)
+            {
+                hideOrShowControlsForAdd(false);
+                resetInputs(true);
+                editing = false;
+                startEditOrAdd = false;
             }
             return true;
         }
