@@ -15,7 +15,7 @@ namespace Core
     public class ContactManager
     {
         private readonly XDocument contacts;
-        private string path;
+        private readonly string path;
 
         public List<Contact> Contacts
         {
@@ -44,18 +44,25 @@ namespace Core
                 contacts = XDocument.Load(path);
         }
 
-        public Contact[] SearchContactArray(string name)
+        public List<Contact> SearchContactList(string name)
         {
             var names = name.Split().Where(s=>!string.IsNullOrWhiteSpace(s)).Select(s=>s.ToUpper());
-            if (names.Count() == 0) return Contacts.ToArray();
+            if (!names.Any()) return Contacts;
 
             return contacts.Root.Elements()
                 .Where(e => names.All(
                     name1 => e.Element("Name").Value.ToUpper().Contains(name1) 
                         || e.Element("Surname").Value.ToUpper().Contains(name1)
                     ))
-                .Select(getContact).ToArray();
+                .Select(getContact).ToList();
         }
+
+        public Dictionary<string, List<Contact>> SearchContactDictionary(string name)
+        {
+            return SearchContactList(name).GroupBy(c => c.Group)
+                .Select(gr => gr.ToList())
+                .ToDictionary(gr => gr[0].Group);
+        } 
 
         public Contact GetContactById(string id)
         {

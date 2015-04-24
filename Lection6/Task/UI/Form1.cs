@@ -19,7 +19,7 @@ namespace UI
         private bool editing;
         private bool startEditOrAdd;
 
-        private List<Control> inputs; 
+        private List<Control> inputs;
 
         private Contact selectedContact
         {
@@ -27,7 +27,7 @@ namespace UI
             {
                 if (groupCheckBox.Checked)
                 {
-                    return treeView1.SelectedNode == null ?
+                    return (treeView1.SelectedNode == null || treeView1.SelectedNode.Name == "") ?
                         null : manager.GetContactById(treeView1.SelectedNode.Name);
                 }
                 return listBox1.SelectedItem == null ? null : (Contact)listBox1.SelectedItem;
@@ -44,8 +44,7 @@ namespace UI
             try
             {
                 manager = new ContactManager("data.xml");
-                foreach (var contact in manager.Contacts)
-                    listBox1.Items.Add(contact);
+                fillList(manager.Contacts);
                 inputs = new List<Control>()
                 {
                     SurnameTextBox,
@@ -122,7 +121,7 @@ namespace UI
             }
             if (hasError)
             {
-                MessageBox.Show("Не все поля заполнены","Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Не все поля заполнены", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             resetInputs();
@@ -158,20 +157,42 @@ namespace UI
         private void searchTextBox_TextChanged(object sender, EventArgs e)
         {
             if (!groupCheckBox.Checked)
-            {
-                listBox1.Items.Clear();
-                listBox1.Items.AddRange(manager.SearchContactArray(searchTextBox.Text));
-            }
+                fillList(manager.SearchContactList(searchTextBox.Text));
+            else
+                fillTree(manager.SearchContactDictionary(searchTextBox.Text));
         }
 
         private void GroupCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             listBox1.Visible = !groupCheckBox.Checked;
             treeView1.Visible = groupCheckBox.Checked;
+            searchTextBox.Text = "";
+            if (groupCheckBox.Checked)
+                fillTree(manager.GroupContact);
+            else
+                fillList(manager.Contacts);
+        }
+
+        private void fillTree(Dictionary<string, List<Contact>> dict)
+        {
+            treeView1.Nodes.Clear();
+            foreach (var group in dict)
+            {
+                var node = new TreeNode(group.Key);
+                foreach (var contact in group.Value)
+                    node.Nodes.Add(contact.Id, contact.ToString());
+                treeView1.Nodes.Add(node);
+            }
+        }
+
+        private void fillList(List<Contact> list)
+        {
+            listBox1.DataSource = list;
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (!checkBeforeStartMethod()) return;
             var c = selectedContact;
             if (c == null)
             {
