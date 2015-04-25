@@ -37,11 +37,11 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.loadButton = new System.Windows.Forms.Button();
-            this.MobliePhoneMaskedTextBox = new System.Windows.Forms.MaskedTextBox();
-            this.PhoneMaskedTextBox = new System.Windows.Forms.MaskedTextBox();
-            this.NameTextBox = new System.Windows.Forms.TextBox();
-            this.GroupTextBox = new System.Windows.Forms.TextBox();
-            this.SurnameTextBox = new System.Windows.Forms.TextBox();
+            this.mobliePhoneMaskedTextBox = new System.Windows.Forms.MaskedTextBox();
+            this.phoneMaskedTextBox = new System.Windows.Forms.MaskedTextBox();
+            this.nameTextBox = new System.Windows.Forms.TextBox();
+            this.groupTextBox = new System.Windows.Forms.TextBox();
+            this.surnameTextBox = new System.Windows.Forms.TextBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.saveButton = new System.Windows.Forms.Button();
             this.editButton = new System.Windows.Forms.Button();
@@ -79,11 +79,11 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.loadButton);
-            this.groupBox1.Controls.Add(this.MobliePhoneMaskedTextBox);
-            this.groupBox1.Controls.Add(this.PhoneMaskedTextBox);
-            this.groupBox1.Controls.Add(this.NameTextBox);
-            this.groupBox1.Controls.Add(this.GroupTextBox);
-            this.groupBox1.Controls.Add(this.SurnameTextBox);
+            this.groupBox1.Controls.Add(this.mobliePhoneMaskedTextBox);
+            this.groupBox1.Controls.Add(this.phoneMaskedTextBox);
+            this.groupBox1.Controls.Add(this.nameTextBox);
+            this.groupBox1.Controls.Add(this.groupTextBox);
+            this.groupBox1.Controls.Add(this.surnameTextBox);
             this.groupBox1.Controls.Add(this.pictureBox1);
             this.groupBox1.Controls.Add(this.saveButton);
             this.groupBox1.Controls.Add(this.editButton);
@@ -155,58 +155,59 @@
             this.loadButton.Text = "Загрузить\r\nфото";
             this.loadButton.UseVisualStyleBackColor = true;
             this.loadButton.Visible = false;
+            this.loadButton.Click += new System.EventHandler(this.loadButton_Click);
             // 
-            // MobliePhoneMaskedTextBox
+            // mobliePhoneMaskedTextBox
             // 
-            this.MobliePhoneMaskedTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.MobliePhoneMaskedTextBox.Enabled = false;
-            this.MobliePhoneMaskedTextBox.Location = new System.Drawing.Point(218, 269);
-            this.MobliePhoneMaskedTextBox.Mask = "(999) 000-0000";
-            this.MobliePhoneMaskedTextBox.Name = "MobliePhoneMaskedTextBox";
-            this.MobliePhoneMaskedTextBox.Size = new System.Drawing.Size(226, 20);
-            this.MobliePhoneMaskedTextBox.TabIndex = 5;
-            this.MobliePhoneMaskedTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
+            this.mobliePhoneMaskedTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.mobliePhoneMaskedTextBox.Enabled = false;
+            this.mobliePhoneMaskedTextBox.Location = new System.Drawing.Point(218, 269);
+            this.mobliePhoneMaskedTextBox.Mask = "(999) 000-0000";
+            this.mobliePhoneMaskedTextBox.Name = "mobliePhoneMaskedTextBox";
+            this.mobliePhoneMaskedTextBox.Size = new System.Drawing.Size(226, 20);
+            this.mobliePhoneMaskedTextBox.TabIndex = 5;
+            this.mobliePhoneMaskedTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
             // 
-            // PhoneMaskedTextBox
+            // phoneMaskedTextBox
             // 
-            this.PhoneMaskedTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.PhoneMaskedTextBox.Enabled = false;
-            this.PhoneMaskedTextBox.Location = new System.Drawing.Point(218, 218);
-            this.PhoneMaskedTextBox.Mask = "000-00-00";
-            this.PhoneMaskedTextBox.Name = "PhoneMaskedTextBox";
-            this.PhoneMaskedTextBox.Size = new System.Drawing.Size(226, 20);
-            this.PhoneMaskedTextBox.TabIndex = 4;
-            this.PhoneMaskedTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
+            this.phoneMaskedTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.phoneMaskedTextBox.Enabled = false;
+            this.phoneMaskedTextBox.Location = new System.Drawing.Point(218, 218);
+            this.phoneMaskedTextBox.Mask = "000-00-00";
+            this.phoneMaskedTextBox.Name = "phoneMaskedTextBox";
+            this.phoneMaskedTextBox.Size = new System.Drawing.Size(226, 20);
+            this.phoneMaskedTextBox.TabIndex = 4;
+            this.phoneMaskedTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
             // 
-            // NameTextBox
+            // nameTextBox
             // 
-            this.NameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.NameTextBox.Enabled = false;
-            this.NameTextBox.Location = new System.Drawing.Point(218, 113);
-            this.NameTextBox.Name = "NameTextBox";
-            this.NameTextBox.Size = new System.Drawing.Size(226, 20);
-            this.NameTextBox.TabIndex = 3;
-            this.NameTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
+            this.nameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.nameTextBox.Enabled = false;
+            this.nameTextBox.Location = new System.Drawing.Point(218, 113);
+            this.nameTextBox.Name = "nameTextBox";
+            this.nameTextBox.Size = new System.Drawing.Size(226, 20);
+            this.nameTextBox.TabIndex = 2;
+            this.nameTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
             // 
-            // GroupTextBox
+            // groupTextBox
             // 
-            this.GroupTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.GroupTextBox.Enabled = false;
-            this.GroupTextBox.Location = new System.Drawing.Point(218, 164);
-            this.GroupTextBox.Name = "GroupTextBox";
-            this.GroupTextBox.Size = new System.Drawing.Size(226, 20);
-            this.GroupTextBox.TabIndex = 3;
-            this.GroupTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
+            this.groupTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupTextBox.Enabled = false;
+            this.groupTextBox.Location = new System.Drawing.Point(218, 164);
+            this.groupTextBox.Name = "groupTextBox";
+            this.groupTextBox.Size = new System.Drawing.Size(226, 20);
+            this.groupTextBox.TabIndex = 3;
+            this.groupTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
             // 
-            // SurnameTextBox
+            // surnameTextBox
             // 
-            this.SurnameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.SurnameTextBox.Enabled = false;
-            this.SurnameTextBox.Location = new System.Drawing.Point(218, 65);
-            this.SurnameTextBox.Name = "SurnameTextBox";
-            this.SurnameTextBox.Size = new System.Drawing.Size(226, 20);
-            this.SurnameTextBox.TabIndex = 3;
-            this.SurnameTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
+            this.surnameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.surnameTextBox.Enabled = false;
+            this.surnameTextBox.Location = new System.Drawing.Point(218, 65);
+            this.surnameTextBox.Name = "surnameTextBox";
+            this.surnameTextBox.Size = new System.Drawing.Size(226, 20);
+            this.surnameTextBox.TabIndex = 1;
+            this.surnameTextBox.TextChanged += new System.EventHandler(this.TextBox_TextChanged);
             // 
             // pictureBox1
             // 
@@ -231,7 +232,7 @@
             this.saveButton.Location = new System.Drawing.Point(7, 401);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(444, 31);
-            this.saveButton.TabIndex = 1;
+            this.saveButton.TabIndex = 7;
             this.saveButton.Text = "Сохранить";
             this.toolTip1.SetToolTip(this.saveButton, "Сохранить изменения");
             this.saveButton.UseVisualStyleBackColor = true;
@@ -283,7 +284,7 @@
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(241, 20);
             this.searchTextBox.TabIndex = 3;
-            this.toolTip1.SetToolTip(this.searchTextBox, "Поиск");
+            this.toolTip1.SetToolTip(this.searchTextBox, "Поиск по имени или фамилии");
             this.searchTextBox.TextChanged += new System.EventHandler(this.searchTextBox_TextChanged);
             // 
             // addButton
@@ -302,6 +303,7 @@
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
+            this.openFileDialog1.Filter = "Изображения|*.jpg;*.bmp;*.png;*.jpeg;*.gif";
             // 
             // treeView1
             // 
@@ -329,6 +331,7 @@
             this.MinimumSize = new System.Drawing.Size(758, 492);
             this.Name = "Form1";
             this.Text = "Менеджер контактов";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -342,9 +345,9 @@
 
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox NameTextBox;
-        private System.Windows.Forms.TextBox GroupTextBox;
-        private System.Windows.Forms.TextBox SurnameTextBox;
+        private System.Windows.Forms.TextBox nameTextBox;
+        private System.Windows.Forms.TextBox groupTextBox;
+        private System.Windows.Forms.TextBox surnameTextBox;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.Button editButton;
@@ -352,8 +355,8 @@
         private System.Windows.Forms.CheckBox groupCheckBox;
         private System.Windows.Forms.TextBox searchTextBox;
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.MaskedTextBox MobliePhoneMaskedTextBox;
-        private System.Windows.Forms.MaskedTextBox PhoneMaskedTextBox;
+        private System.Windows.Forms.MaskedTextBox mobliePhoneMaskedTextBox;
+        private System.Windows.Forms.MaskedTextBox phoneMaskedTextBox;
         private System.Windows.Forms.Button loadButton;
         private System.Windows.Forms.Button addButton;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;

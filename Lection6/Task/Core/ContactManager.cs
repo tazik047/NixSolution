@@ -4,24 +4,36 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace Core
 {
+    /// <summary>
+    /// Класс для управления списком контактов.
+    /// </summary>
     public class ContactManager
     {
-        private readonly XDocument contacts;
-        private readonly string path;
+        /// <summary>
+        /// XML Документ.
+        /// </summary>
+        private readonly XDocument _contacts;
 
+        /// <summary>
+        /// Путь к файлу, в котором хранятся данные.
+        /// </summary>
+        private readonly string _path;
+
+        /// <summary>
+        /// Список сохраненных контактов.
+        /// </summary>
         public List<Contact> Contacts
         {
-            get { return contacts.Root.Elements().Select(getContact).ToList(); }
+            get { return _contacts.Root.Elements().Select(getContact).ToList(); }
         }
 
+        /// <summary>
+        /// Контакты сгруппированные по группе.
+        /// </summary>
         public Dictionary<string, List<Contact> > GroupContact 
         {
             get
@@ -34,22 +46,27 @@ namespace Core
 
         public ContactManager(string path)
         {
-            this.path = path;
-            if (!File.Exists(path))
+            _path = path;
+            if (!File.Exists(path)) // если программа запускается первый раз
             {
-                contacts = new XDocument(new XElement("Contacts"));
-                contacts.Save(path);
+                _contacts = new XDocument(new XElement("Contacts"));
+                _contacts.Save(path);
             }
             else
-                contacts = XDocument.Load(path);
+                _contacts = XDocument.Load(path);
         }
 
+        /// <summary>
+        /// Выполняет поиск контактов содержащих в имени или фамилии заданный текст и возвращает список.
+        /// </summary>
+        /// <param name="name">Текст для поиска</param>
+        /// <returns>Подходящий список контактов</returns>
         public List<Contact> SearchContactList(string name)
         {
             var names = name.Split().Where(s=>!string.IsNullOrWhiteSpace(s)).Select(s=>s.ToUpper());
             if (!names.Any()) return Contacts;
 
-            return contacts.Root.Elements()
+            return _contacts.Root.Elements()
                 .Where(e => names.All(
                     name1 => e.Element("Name").Value.ToUpper().Contains(name1) 
                         || e.Element("Surname").Value.ToUpper().Contains(name1)
@@ -57,6 +74,12 @@ namespace Core
                 .Select(getContact).ToList();
         }
 
+        /// <summary>
+        /// Выполняет поиск контактов содержащих в имени или фамилии заданный текст 
+        /// и возвращает контакты сгруппированные по группе.
+        /// </summary>
+        /// <param name="name">Текст для поиска</param>
+        /// <returns>Подходящий контакты сгруппированные по группе.</returns>
         public Dictionary<string, List<Contact>> SearchContactDictionary(string name)
         {
             return SearchContactList(name).GroupBy(c => c.Group)
@@ -64,32 +87,54 @@ namespace Core
                 .ToDictionary(gr => gr[0].Group);
         } 
 
+        /// <summary>
+        /// Выполняет поиск контакта по заданному Id/
+        /// </summary>
+        /// <param name="id">Id контакта</param>
+        /// <returns>Найденный контакт</returns>
         public Contact GetContactById(string id)
         {
-            return getContact(contacts.Root
+            return getContact(_contacts.Root
                                     .Elements().First(e => e.Element("Id")
                                     .Value.Equals(id)));
         }
 
+        /// <summary>
+        /// Добавляет новый контакт.
+        /// </summary>
+        /// <param name="contact">Новый контакт</param>
         public void Add(Contact contact)
         {
-            contacts.Root.Add(getXElement(contact));
-            contacts.Save(path);
+            _contacts.Root.Add(getXElement(contact));
+            _contacts.Save(_path);
         }
 
+        /// <summary>
+        /// Удаляет выбранный контакт.
+        /// </summary>
+        /// <param name="id">Id контакта для удаления</param>
         public void Remove(string id)
         {
-            contacts.Root.Elements().First(e=>e.Element("Id").Value.Equals(id)).Remove();
-            contacts.Save(path);
+            _contacts.Root.Elements().First(e=>e.Element("Id").Value.Equals(id)).Remove();
+            _contacts.Save(_path);
         }
 
+        /// <summary>
+        /// Обновляет контакт с таким же id как и у ранее сохраненного.
+        /// </summary>
+        /// <param name="contact">Контакт для обновления</param>
         public void Update(Contact contact)
         {
-            var current = contacts.Root.Elements().First(e => e.Element("Id").Value.Equals(contact.Id));
+            var current = _contacts.Root.Elements().First(e => e.Element("Id").Value.Equals(contact.Id));
             current.ReplaceWith(getXElement(contact));
-            contacts.Save(path);
+            _contacts.Save(_path);
         }
 
+        /// <summary>
+        /// Преобразовует контакт в элемент XML.
+        /// </summary>
+        /// <param name="contact">Контакт для преобразования</param>
+        /// <returns>Результирующий XML элемент</returns>
         private XElement getXElement(Contact contact)
         {
             return new XElement("Contact",
@@ -102,6 +147,11 @@ namespace Core
                 new XElement("Photo", convertBitmapToString(contact.Photo)));
         }
 
+        /// <summary>
+        /// Преобразует XML элемент в контакт.
+        /// </summary>
+        /// <param name="element">XML элемент для преобразования</param>
+        /// <returns>Результирующий контакт</returns>
         private Contact getContact(XElement element)
         {
             return new Contact(element.Element("Id").Value)
@@ -115,6 +165,11 @@ namespace Core
             };
         }
 
+        /// <summary>
+        /// Преобразовует картинку в строковое представление.
+        /// </summary>
+        /// <param name="img">Изображение для конвертации</param>
+        /// <returns>Результат конвертации</returns>
         private string convertBitmapToString(Bitmap img)
         {
             TypeConverter converter = TypeDescriptor.GetConverter(typeof(Bitmap));
@@ -122,6 +177,11 @@ namespace Core
                     (byte[])converter.ConvertTo(img, typeof(byte[])));
         }
 
+        /// <summary>
+        /// Восстанавливает картинку из строкового отображения.
+        /// </summary>
+        /// <param name="img">Закодированная строка</param>
+        /// <returns>Полученное изоражение</returns>
         private Bitmap convertStringToBitmap(string img)
         {
             byte[] bytes = Convert.FromBase64String(img);
