@@ -33,6 +33,11 @@ namespace UI
         private bool _startEditOrAdd;
 
         /// <summary>
+        ///  Выбранный элемент для редактирования.
+        /// </summary>
+        private Contact _selectedContactForEditing;
+
+        /// <summary>
         /// Список текстовых полей, в которые будут записывать значения полей контакта.
         /// </summary>
         private List<Control> _inputs;
@@ -90,6 +95,7 @@ namespace UI
         {
             if (!checkBeforeStartMethod())
                 return;
+            _selectedContactForEditing = _selectedContact;
             resetInputs(true);
             _startEditOrAdd = true;
             hideOrShowControlsForAdd(true);
@@ -101,6 +107,7 @@ namespace UI
         private void editButton_Click(object sender, EventArgs e)
         {
             if (!checkContactIsSelected()) return;
+            _selectedContactForEditing = _selectedContact;
             enableOrDisableControlsForEdit(true);
             _startEditOrAdd = true;
 
@@ -204,27 +211,26 @@ namespace UI
                     Photo = new Bitmap(pictureBox1.BackgroundImage)
                 };
                 _manager.Add(c);
-                _editing = false;
-                if (groupCheckBox.Checked)
-                    fillTree(_manager.GroupContact);
-                else
-                    fillList(_manager.Contacts);
-                searchTextBox.Text = "";
 
             }
             else if (_editing)
             {
-                _selectedContact.Surname = surnameTextBox.Text;
-                _selectedContact.Name = nameTextBox.Text;
-                _selectedContact.Group = groupTextBox.Text;
-                _selectedContact.Phone = phoneMaskedTextBox.Text;
-                _selectedContact.MobilePhone = mobliePhoneMaskedTextBox.Text;
-                _selectedContact.Photo = new Bitmap(pictureBox1.BackgroundImage);
-                _manager.Update(_selectedContact);
-                _editing = false;
+                _selectedContactForEditing.Surname = surnameTextBox.Text;
+                _selectedContactForEditing.Name = nameTextBox.Text;
+                _selectedContactForEditing.Group = groupTextBox.Text;
+                _selectedContactForEditing.Phone = phoneMaskedTextBox.Text;
+                _selectedContactForEditing.MobilePhone = mobliePhoneMaskedTextBox.Text;
+                _selectedContactForEditing.Photo = new Bitmap(pictureBox1.BackgroundImage);
+                _manager.Update(_selectedContactForEditing);
             }
             _startEditOrAdd = false;
             hideOrShowControlsForAdd(false);
+            _editing = false;
+            if (groupCheckBox.Checked)
+                fillTree(_manager.GroupContact);
+            else
+                fillList(_manager.Contacts);
+            searchTextBox.Text = "";
         }
 
         /// <summary>
