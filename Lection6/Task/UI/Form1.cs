@@ -144,15 +144,17 @@ namespace UI
                 MessageBoxIcon.Information) == DialogResult.No)
                 return;
             _manager.Remove(c.Id);
-            if (groupCheckBox.Checked)
-                treeView1.SelectedNode.Remove();
-            else
-                listBox1.DataSource = _manager.Contacts;
             if (_startEditOrAdd)
             {
                 hideOrShowControlsForAdd(false);
                 _editing = false;
+                _startEditOrAdd = false;
             }
+            if (groupCheckBox.Checked)
+                treeView1.SelectedNode.Remove();
+            else
+                listBox1.DataSource = _manager.Contacts;
+            resetInputs(true);
         }
 
         /// <summary>
@@ -320,11 +322,6 @@ namespace UI
         /// false - скрыть элементы</param>
         private void hideOrShowControlsForAdd(bool show)
         {
-            label1.Visible = show;
-            label2.Visible = show;
-            label3.Visible = show;
-            label4.Visible = show;
-            label5.Visible = show;
             loadButton.Visible = show;
             editButton.Visible = !show;
             delButton.Visible = !show;
