@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace FinalTask
 {
@@ -80,7 +81,6 @@ namespace FinalTask
             {
                 var item = new Item()
                 {
-                    Owner = directory.GetAccessControl().GetOwner(typeof (NTAccount)).ToString(),
                     Size = fileInfo.Length,
                     Type = ItemType.File
                 };
@@ -95,7 +95,6 @@ namespace FinalTask
         {
             var item = new Item()
             {
-                Owner = directoryInfo.GetAccessControl().GetOwner(typeof(NTAccount)).ToString(),
                 Type = ItemType.StartFolder
             };
             item.FillItem(directoryInfo);
@@ -119,27 +118,27 @@ namespace FinalTask
 
         private void XmlWorker()
         {
-            XmlWriter writer = null; 
+            XElement doc = null;
             while (true)
             {
                 while (!xmlQueue.IsEmpty)
                 {
                     var item = xmlQueue.Dequeue();
                     if(item==null) continue;
-                    writer.WriteItem(item);
+                    doc = doc.WriteItem(item);
                 }
                 if (isProcessing)
                     xmlWaitHamdler.WaitOne();
                 else
                 {
-                    if (writer != null)
+                    if (doc != null)
                     {
-                        writer.Dispose();
+                        doc.Save(pathXML);
+                        doc = null;
                     }
                     waitWorker[0].Set();
                     waitStart.WaitOne();
                     waitWorker[0].Reset();
-                    writer = new XmlTextWriter(pathXML, Encoding.UTF8);
                 }
             }
         }

@@ -5,48 +5,39 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace FinalTask
 {
     public static class XmlHelper
     {
-        public static void WriteItem(this XmlWriter writer, Item item)
+        public static XElement WriteItem(this XElement writer, Item item)
         {
             switch (item.Type)
             {
                 case ItemType.StartFolder:
-                    writer.WriteStartElement("Folder");
-                    writePartOfItem(writer, item);
+                    var t = new XElement("Folder");
+                    if(writer != null)
+                        writer.Add(t);
+                    writer = t;
+                    writer.Add(new XAttribute("Name", item.Name),
+                        new XAttribute("Create", item.Created));
                     break;
                 case ItemType.EndFolder:
-                    double mb = item.Size / (1024.0 * 1024);
-                    //writer.WriteAttributeString("Size", string.Format("{0} MB", mb));
-                    writer.WriteEndElement();
+                    writer.Add(new XAttribute("Size", item.SizeMb));
+                    if(writer.Parent != null)
+                        writer = writer.Parent;
                     break;
                 case ItemType.File:
-                    writer.WriteStartElement("File");
-                    writePartOfItem(writer, item);
-                    writer.WriteEndElement();
+                    double size = item.Size / (1024.0 * 1024);
+                    writer.Add(new XElement("File",
+                        new XAttribute("Name", item.Name),
+                        new XAttribute("Create", item.Created),
+                        new XAttribute("Size",  item.SizeMb))
+                        );
                     break;
             }
-        }
-
-        private static void writePartOfItem(XmlWriter writer, Item item)
-        {
-            writer.WriteAttributeString("Name", item.Name);
-            writer.WriteAttributeString("Path", item.Path);
-            writer.WriteAttributeString("Create", string.Format("{0} {1}", 
-                item.CreationDate.ToShortDateString(),
-                item.CreationDate.ToShortTimeString()));
-            writer.WriteAttributeString("LastModify", string.Format("{0} {1}", 
-                item.LastModifiedDate.ToShortDateString(), 
-                item.LastModifiedDate.ToShortTimeString()));
-            writer.WriteAttributeString("LastAccess", string.Format("{0} {1}", 
-                item.LastAccessDate.ToShortDateString(), 
-                item.LastAccessDate.ToShortTimeString()));
-            writer.WriteAttributeString("Attrubtes", item.Attributes.ToString());
-            writer.WriteAttributeString("Owner", item.Owner);
-            writer.WriteAttributeString("Rights", item.Rights);
+            return writer;
         }
     }
 }

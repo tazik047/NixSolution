@@ -1,39 +1,33 @@
 ﻿using System;
 using System.IO;
+using System.Xml.Linq;
 
 namespace FinalTask
 {
     public class Item
     {
         public string Name { get; set; }
-
-        public string Path { get; set; }
         
         public DateTime CreationDate { get; set; }
 
-        public DateTime LastModifiedDate { get; set; }
-
-        public DateTime LastAccessDate { get; set; }
-
-        public FileAttributes Attributes { get; set; }
+        public string Created
+        {
+            get { return CreationDate.ToString("G"); }
+        }
 
         public ItemType Type { get; set; }
 
-        public string Owner { get; set; }
-
-        public string Rights { get; set; }
-
         public long Size { get; set; }
+
+        public string SizeMb
+        {
+            get { return string.Format("{0:F} MB",Size/(1024.0*1024));}
+        }
 
         public void FillItem(FileSystemInfo fsi)
         {
-            Attributes = fsi.Attributes;
             CreationDate = fsi.CreationTime;
-            LastAccessDate = fsi.LastAccessTime;
-            LastModifiedDate = fsi.LastWriteTime;
             Name = fsi.Name;
-            Path = fsi.FullName;
-            Rights = "";
         }
     }
 }
