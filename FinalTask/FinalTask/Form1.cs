@@ -25,16 +25,13 @@ namespace FinalTask
         private AutoResetEvent treeWaitHamdler = new AutoResetEvent(false);
         private ManualResetEvent waitStart = new ManualResetEvent(false);
 
-        private AutoResetEvent[] waitWorker =
+        private ManualResetEvent[] waitWorker =
         {
-            new AutoResetEvent(false),
-            new AutoResetEvent(false)
+            new ManualResetEvent(false),
+            new ManualResetEvent(false)
         };
 
         private bool isProcessing = false;
-
-        private Thread xml;
-        private Thread tree;
         
         private string path
         {
@@ -51,17 +48,26 @@ namespace FinalTask
             InitializeComponent();
         }
 
-        private void collectInfo()
+        private void collectInfo(object obj)
         {
             var directory = new DirectoryInfo(path);
-            long temp = 0;
             waitStart.Set();
-            fillDirectory(directory, ref temp);
+            try
+            {
+                long temp = 0;
+                fillDirectory(directory, ref temp);
+            }
+            catch (UnauthorizedAccessException exception)
+            {
+                MessageBox.Show(exception.Message, Thread.CurrentThread.ManagedThreadId.ToString());
+                this.NotifyException(ThreadException, exception);
+            }
             waitStart.Reset();
             isProcessing = false;
-            waitWorker[0].WaitOne();
-            waitWorker[1].WaitOne();
-            Invoke((Action) (() =>
+            xmlWaitHamdler.Set();
+            treeWaitHamdler.Set();
+            WaitHandle.WaitAll(waitWorker);
+            Invoke((Action)(() =>
             {
                 button1.Enabled = true;
                 MessageBox.Show("End work");
@@ -124,7 +130,7 @@ namespace FinalTask
                 while (!xmlQueue.IsEmpty)
                 {
                     var item = xmlQueue.Dequeue();
-                    if(item==null) continue;
+                    if (item == null) continue;
                     doc = doc.WriteItem(item);
                 }
                 if (isProcessing)
@@ -155,16 +161,16 @@ namespace FinalTask
                     switch (item.Type)
                     {
                         case ItemType.StartFolder:
-                            var newNode = new TreeNode(item.Name);
+                            var newNode = new TreeNode(item.Name, 1, 2);
                             node.Nodes.Add(newNode);
                             node = newNode;
                             break;
                         case ItemType.EndFolder:
-                            if(node.Parent!=null)
+                            if (node.Parent != null)
                                 node = node.Parent;
                             break;
                         case ItemType.File:
-                            node.Nodes.Add(item.Name);
+                            node.Nodes.Add(new TreeNode(item.Name, 0, 0));
                             break;
                     }
                 }
@@ -172,12 +178,12 @@ namespace FinalTask
                     treeWaitHamdler.WaitOne();
                 else
                 {
-                    if(node!=null)
-                        Invoke((Action)(() => treeView1.Nodes.Add(node.FirstNode)));
+                    if (node != null && node.FirstNode != null)
+                        BeginInvoke((Action)(() => treeView1.Nodes.Add(node.FirstNode)));
                     waitWorker[1].Set();
                     waitStart.WaitOne();
                     waitWorker[1].Reset();
-                    Invoke((Action)treeView1.Nodes.Clear);
+                    BeginInvoke((Action)treeView1.Nodes.Clear);
                     node = new TreeNode();
                 }
             }
@@ -188,19 +194,42 @@ namespace FinalTask
             if (DialogResult.OK == openFileDialog1.ShowDialog())
             {
                 label1.Text = Path.GetDirectoryName(openFileDialog1.FileName);
-                Thread collect = new Thread(collectInfo);
+                ThreadPool.QueueUserWorkItem(collectInfo);
                 isProcessing = true;
                 button1.Enabled = false;
-                collect.Start();
             }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            xml = new Thread(XmlWorker);
-            tree = new Thread(TreeWorker);
+            var t = new ImageList();
+            t.Images.Add(Properties.Resources.none);
+            t.Images.Add(Properties.Resources.Folder_copy);
+            t.Images.Add(Properties.Resources.Folder_copy_2);
+            treeView1.ImageList = t;
+            Thread xml = new Thread(XmlWorker);
+            Thread tree = new Thread(TreeWorker);
+            xml.IsBackground = true;
+            tree.IsBackground = true;
             xml.Start();
             tree.Start();
+        }
+
+        void ThreadException(Exception exception)
+        {
+            MessageBox.Show(exception.Message, Thread.CurrentThread.ManagedThreadId.ToString());
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (waitWorker.Any(w => !w.WaitOne(0)))
+            {
+                if (DialogResult.No ==
+                    MessageBox.Show(
+                        "Программа еще выполняет работу.\nЗавершение программы приведет к потере данных в xml файле.\nВы уверены, что хотите закрыть программу?",
+                        "Предупреждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+                    e.Cancel = true;
+            }
         }
     }
 }

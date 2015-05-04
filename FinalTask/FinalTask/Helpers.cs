@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ using System.Xml.Linq;
 
 namespace FinalTask
 {
-    public static class XmlHelper
+    public static class Helpers
     {
         public static XElement WriteItem(this XElement writer, Item item)
         {
@@ -17,7 +18,7 @@ namespace FinalTask
             {
                 case ItemType.StartFolder:
                     var t = new XElement("Folder");
-                    if(writer != null)
+                    if (writer != null)
                         writer.Add(t);
                     writer = t;
                     writer.Add(new XAttribute("Name", item.Name),
@@ -25,7 +26,7 @@ namespace FinalTask
                     break;
                 case ItemType.EndFolder:
                     writer.Add(new XAttribute("Size", item.SizeMb));
-                    if(writer.Parent != null)
+                    if (writer.Parent != null)
                         writer = writer.Parent;
                     break;
                 case ItemType.File:
@@ -33,11 +34,20 @@ namespace FinalTask
                     writer.Add(new XElement("File",
                         new XAttribute("Name", item.Name),
                         new XAttribute("Create", item.Created),
-                        new XAttribute("Size",  item.SizeMb))
+                        new XAttribute("Size", item.SizeMb))
                         );
                     break;
             }
             return writer;
+        }
+
+        public static void NotifyException(this ISynchronizeInvoke invoke,
+            Action<Exception> d, Exception ex)
+        {
+            if (!invoke.InvokeRequired)
+                d(ex);
+            else
+                invoke.BeginInvoke(d, new[] { ex });
         }
     }
 }
