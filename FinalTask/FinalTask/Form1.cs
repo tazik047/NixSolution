@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Security.Principal;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace FinalTask
@@ -31,8 +23,10 @@ namespace FinalTask
             new ManualResetEvent(false)
         };
 
+        private Button[] _buttons;
+
         private bool isProcessing = false;
-        
+
         private string path
         {
             get { return label1.Text; }
@@ -40,12 +34,16 @@ namespace FinalTask
 
         private string pathXML
         {
-            get { return "my.xml"; }
+            get { return label2.Text; }
         }
 
         public Form1()
         {
             InitializeComponent();
+            _buttons = new[]
+            {
+                startButton, pathButton, xmlButton
+            };
         }
 
         private void collectInfo(object obj)
@@ -59,7 +57,14 @@ namespace FinalTask
             }
             catch (UnauthorizedAccessException exception)
             {
-                MessageBox.Show(exception.Message, Thread.CurrentThread.ManagedThreadId.ToString());
+                this.NotifyException(ThreadException, exception);
+            }
+            catch (DirectoryNotFoundException exception)
+            {
+                this.NotifyException(ThreadException, exception);
+            }
+            catch (System.Security.SecurityException exception)
+            {
                 this.NotifyException(ThreadException, exception);
             }
             waitStart.Reset();
@@ -69,7 +74,7 @@ namespace FinalTask
             WaitHandle.WaitAll(waitWorker);
             Invoke((Action)(() =>
             {
-                button1.Enabled = true;
+                enableOrDisableButtons(true);
                 MessageBox.Show("End work");
                 isProcessing = false;
             }));
@@ -189,15 +194,22 @@ namespace FinalTask
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void start_button_Click(object sender, EventArgs e)
         {
-            if (DialogResult.OK == openFileDialog1.ShowDialog())
+            if (String.IsNullOrWhiteSpace(label1.Text))
             {
-                label1.Text = Path.GetDirectoryName(openFileDialog1.FileName);
-                ThreadPool.QueueUserWorkItem(collectInfo);
-                isProcessing = true;
-                button1.Enabled = false;
+                MessageBox.Show("Сначала нужно выбрать папку");
+                return;
             }
+            ThreadPool.QueueUserWorkItem(collectInfo);
+            isProcessing = true;
+            enableOrDisableButtons(false);
+        }
+
+        private void enableOrDisableButtons(bool enable)
+        {
+            foreach (var button in _buttons)
+                button.Enabled = enable;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -230,6 +242,18 @@ namespace FinalTask
                         "Предупреждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
                     e.Cancel = true;
             }
+        }
+
+        private void pathButton_Click(object sender, EventArgs e)
+        {
+            if (DialogResult.OK == openFileDialog1.ShowDialog())
+                label1.Text = Path.GetDirectoryName(openFileDialog1.FileName);
+        }
+
+        private void XmlButton_Click(object sender, EventArgs e)
+        {
+            if (DialogResult.OK == saveFileDialog1.ShowDialog())
+                label2.Text = saveFileDialog1.FileName;
         }
     }
 }
