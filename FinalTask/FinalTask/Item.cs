@@ -21,7 +21,21 @@ namespace FinalTask
 
         public string SizeMb
         {
-            get { return string.Format("{0:F} MB",Size/(1024.0*1024));}
+            get {
+                if (Size > 1024l * 1024 * 1024)
+                {
+                    return string.Format("{0:F} GB",Size/(1024.0 * 1024 * 1024));
+                }
+                if (Size > 1024l * 1024)
+                {
+                    return string.Format("{0:F} MB",Size/(1024.0 * 1024));
+                }
+                if (Size > 1024)
+                {
+                    return string.Format("{0:F} KB", Size / 1024.0);
+                }
+                return string.Format("{0} B", Size);
+            }
         }
 
         public void FillItem(FileSystemInfo fsi)
