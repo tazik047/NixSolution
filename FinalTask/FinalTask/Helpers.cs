@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
+using System.Windows.Forms;
 using System.Xml.Linq;
 
 namespace FinalTask
@@ -25,12 +20,14 @@ namespace FinalTask
                         new XAttribute("Create", item.Created));
                     break;
                 case ItemType.EndFolder:
-                    writer.Add(new XAttribute("Size", item.SizeMb));
+                    if (item.Name == null)
+                        writer.Add(new XAttribute("Size", item.SizeMb));
+                    else
+                        writer.SetAttributeValue("Name", item.Name);
                     if (writer.Parent != null)
                         writer = writer.Parent;
                     break;
                 case ItemType.File:
-                    double size = item.Size / (1024.0 * 1024);
                     writer.Add(new XElement("File",
                         new XAttribute("Name", item.Name),
                         new XAttribute("Create", item.Created),
@@ -39,6 +36,28 @@ namespace FinalTask
                     break;
             }
             return writer;
+        }
+
+        public static TreeNode WriteItem(this TreeNode node, Item item)
+        {
+            switch (item.Type)
+            {
+                case ItemType.StartFolder:
+                    var newNode = new TreeNode(item.Name, 1, 2);
+                    node.Nodes.Add(newNode);
+                    node = newNode;
+                    break;
+                case ItemType.EndFolder:
+                    if (item.Name != null)
+                        node.Text = item.Name;
+                    if (node.Parent != null)
+                        node = node.Parent;
+                    break;
+                case ItemType.File:
+                    node.Nodes.Add(new TreeNode(item.Name, 0, 0));
+                    break;
+            }
+            return node;
         }
 
         public static void NotifyException(this ISynchronizeInvoke invoke,

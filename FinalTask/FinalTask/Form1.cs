@@ -27,6 +27,8 @@ namespace FinalTask
 
         private bool isProcessing = false;
 
+        private ErrorForm error;
+
         private string path
         {
             get { return label1.Text; }
@@ -50,23 +52,8 @@ namespace FinalTask
         {
             var directory = new DirectoryInfo(path);
             waitStart.Set();
-            try
-            {
-                long temp = 0;
-                fillDirectory(directory, ref temp);
-            }
-            catch (UnauthorizedAccessException exception)
-            {
-                this.NotifyException(ThreadException, exception);
-            }
-            catch (DirectoryNotFoundException exception)
-            {
-                this.NotifyException(ThreadException, exception);
-            }
-            catch (System.Security.SecurityException exception)
-            {
-                this.NotifyException(ThreadException, exception);
-            }
+            long temp = 0;
+            fillDirectory(directory, ref temp);
             waitStart.Reset();
             isProcessing = false;
             xmlWaitHamdler.Set();
@@ -75,7 +62,13 @@ namespace FinalTask
             Invoke((Action)(() =>
             {
                 enableOrDisableButtons(true);
-                MessageBox.Show("End work");
+                if (error == null || !error.HaveError)
+                    MessageBox.Show("Процесс просмотра папок завершен успешно.");
+                else
+                {
+                    MessageBox.Show("Процесс просмотра папок завершился с ошибками");
+                    button1.Visible = true;
+                }
                 isProcessing = false;
             }));
         }
@@ -85,7 +78,22 @@ namespace FinalTask
             long size = 0;
             foreach (var directoryInfo in directory.GetDirectories())
             {
-                fillDirectory(directoryInfo, ref size);
+                //try
+                //{
+                    fillDirectory(directoryInfo, ref size);
+                //}
+                //catch (UnauthorizedAccessException exception)
+                //{
+                //    this.NotifyException(ThreadException, exception);
+                //}
+                //catch (DirectoryNotFoundException exception)
+                //{
+                //    this.NotifyException(ThreadException, exception);
+                //}
+                //catch (System.Security.SecurityException exception)
+                //{
+                //    this.NotifyException(ThreadException, exception);
+                //}
             }
 
             foreach (var fileInfo in directory.GetFiles())
@@ -110,12 +118,24 @@ namespace FinalTask
             };
             item.FillItem(directoryInfo);
             addItemAndSetHandler(item);
-            item = new Item()
+            try
             {
-                Size = getInfo(directoryInfo),
-                Type = ItemType.EndFolder
-            };
-            size += item.Size;
+                item = new Item()
+                {
+                    Size = getInfo(directoryInfo),
+                    Type = ItemType.EndFolder
+                };
+                size += item.Size;
+            }
+            catch (Exception e)
+            {
+                this.NotifyException(ThreadException, e);
+                item = new Item()
+                {
+                    Name = directoryInfo.Name + " (нет доступа)",
+                    Type = ItemType.EndFolder
+                };
+            }
             addItemAndSetHandler(item);
         }
 
@@ -163,21 +183,7 @@ namespace FinalTask
                 {
                     var item = treeQueue.Dequeue();
                     if (item == null) continue;
-                    switch (item.Type)
-                    {
-                        case ItemType.StartFolder:
-                            var newNode = new TreeNode(item.Name, 1, 2);
-                            node.Nodes.Add(newNode);
-                            node = newNode;
-                            break;
-                        case ItemType.EndFolder:
-                            if (node.Parent != null)
-                                node = node.Parent;
-                            break;
-                        case ItemType.File:
-                            node.Nodes.Add(new TreeNode(item.Name, 0, 0));
-                            break;
-                    }
+                    node = node.WriteItem(item);
                 }
                 if (isProcessing)
                     treeWaitHamdler.WaitOne();
@@ -201,6 +207,9 @@ namespace FinalTask
                 MessageBox.Show("Сначала нужно выбрать папку");
                 return;
             }
+            if(error !=null)
+                error.ClearError();
+            button1.Visible = false;
             ThreadPool.QueueUserWorkItem(collectInfo);
             isProcessing = true;
             enableOrDisableButtons(false);
@@ -229,7 +238,10 @@ namespace FinalTask
 
         void ThreadException(Exception exception)
         {
-            MessageBox.Show(exception.Message, Thread.CurrentThread.ManagedThreadId.ToString());
+            if(error == null)
+                error = new ErrorForm();
+            error.AddError(exception.Message);
+            //MessageBox.Show(exception.Message, Thread.CurrentThread.ManagedThreadId.ToString());
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -246,14 +258,20 @@ namespace FinalTask
 
         private void pathButton_Click(object sender, EventArgs e)
         {
-            if (DialogResult.OK == openFileDialog1.ShowDialog())
-                label1.Text = Path.GetDirectoryName(openFileDialog1.FileName);
+            var browser = new FolderBrowserDialog();
+            if(browser.ShowDialog() == DialogResult.OK)
+                label1.Text = browser.SelectedPath;
         }
 
         private void XmlButton_Click(object sender, EventArgs e)
         {
             if (DialogResult.OK == saveFileDialog1.ShowDialog())
                 label2.Text = saveFileDialog1.FileName;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            error.Show();
         }
     }
 }
