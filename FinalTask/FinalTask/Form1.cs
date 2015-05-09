@@ -12,32 +12,32 @@ namespace FinalTask
         /// <summary>
         /// Очередь на обработку элементов для xml.
         /// </summary>
-        MyConcurrentQueue<Item> xmlQueue = new MyConcurrentQueue<Item>();
+        readonly MyConcurrentQueue<Item> _xmlQueue = new MyConcurrentQueue<Item>();
         
         /// <summary>
         /// Очередь на обработку элементов для tree.
         /// </summary>
-        MyConcurrentQueue<Item> treeQueue = new MyConcurrentQueue<Item>();
+        readonly MyConcurrentQueue<Item> _treeQueue = new MyConcurrentQueue<Item>();
 
         /// <summary>
         /// WaitHandler сигнализирующий о появлении элемента в очереди для xml.
         /// </summary>
-        private AutoResetEvent xmlWaitHamdler = new AutoResetEvent(false);
+        private readonly AutoResetEvent _xmlWaitHamdler = new AutoResetEvent(false);
 
         /// <summary>
         /// WaitHandler сигнализирующий о появлении элемента в очереди для tree.
         /// </summary>
-        private AutoResetEvent treeWaitHamdler = new AutoResetEvent(false);
+        private readonly AutoResetEvent _treeWaitHamdler = new AutoResetEvent(false);
         
         /// <summary>
         /// WaitHandler сигнализирующий о начале работы алгоритма.
         /// </summary>
-        private ManualResetEvent waitStart = new ManualResetEvent(false);
+        private readonly ManualResetEvent _waitStart = new ManualResetEvent(false);
 
         /// <summary>
         /// WaitHandler для сигнализации об начале или окончании работы потоков. 
         /// </summary>
-        private ManualResetEvent[] waitWorker =
+        private readonly ManualResetEvent[] _waitWorker =
         {
             new ManualResetEvent(false), // для потока, работающег с xml
             new ManualResetEvent(false)  // для потока, работающег с tree
@@ -46,17 +46,17 @@ namespace FinalTask
         /// <summary>
         /// Массив конопок для работы с формой.
         /// </summary>
-        private Button[] _buttons;
+        private readonly Button[] _buttons;
 
         /// <summary>
         /// Показаывает выполняется ли работа.
         /// </summary>
-        private bool isProcessing = false;
+        private bool _isProcessing = false;
 
         /// <summary>
         /// Форма для отображения ошибок.
         /// </summary>
-        private ErrorForm error;
+        private ErrorForm _error;
 
         /// <summary>
         /// Путь к папке, которую необходимо просмотреть.
@@ -89,25 +89,25 @@ namespace FinalTask
         private void collectInfo(object obj)
         {
             var directory = new DirectoryInfo(path);
-            waitStart.Set(); // Сигнализируем другим потокам о начале работы.
+            _waitStart.Set(); // Сигнализируем другим потокам о начале работы.
             long temp = 0;
             fillDirectory(directory, ref temp);
-            waitStart.Reset(); // Сигнализируем об окончании работы.
-            isProcessing = false;
-            xmlWaitHamdler.Set(); // Сигнализируем потокам, если они ждут
-            treeWaitHamdler.Set(); // новые элементы.
-            WaitHandle.WaitAll(waitWorker); // Дожидаемся окончания работы всех потоков.
+            _waitStart.Reset(); // Сигнализируем об окончании работы.
+            _isProcessing = false;
+            _xmlWaitHamdler.Set(); // Сигнализируем потокам, если они ждут
+            _treeWaitHamdler.Set(); // новые элементы.
+            WaitHandle.WaitAll(_waitWorker); // Дожидаемся окончания работы всех потоков.
             Invoke((Action)(() =>
             {
                 enableOrDisableButtons(true);
-                if (error == null || !error.HaveError)
+                if (_error == null || !_error.HaveError)
                     MessageBox.Show("Процесс просмотра папок завершен успешно.");
                 else
                 {
                     MessageBox.Show("Процесс просмотра папок завершился с ошибками");
                     errorButton.Visible = true;
                 }
-                isProcessing = false;
+                _isProcessing = false;
             }));
         }
 
@@ -161,7 +161,7 @@ namespace FinalTask
             }
             catch (DirectoryNotFoundException e)
             {
-                this.NotifyException(ThreadException, e);
+                this.NotifyException(threadException, e);
                 item = new Item()
                 {
                     Name = directoryInfo.Name + " (путь не найден)",
@@ -170,7 +170,7 @@ namespace FinalTask
             }
             catch (UnauthorizedAccessException e)
             {
-                this.NotifyException(ThreadException, e);
+                this.NotifyException(threadException, e);
                 item = new Item()
                 {
                     Name = directoryInfo.Name + " (нет доступа)",
@@ -179,7 +179,7 @@ namespace FinalTask
             }
             catch (System.Security.SecurityException e)
             {
-                this.NotifyException(ThreadException, e);
+                this.NotifyException(threadException, e);
                 item = new Item()
                 {
                     Name = directoryInfo.Name + " (нет разрешений для доступа)",
@@ -195,10 +195,10 @@ namespace FinalTask
         /// <param name="item">Элемент для добавления.</param>
         private void addItemAndSetHandler(Item item)
         {
-            xmlQueue.Enqueue(item); // Добавляем элемент в очередь для xml
-            xmlWaitHamdler.Set(); // и сигнализируем, что в очереди появился элемент.
-            treeQueue.Enqueue(item); // добавляем элемент в очередь для дерева
-            treeWaitHamdler.Set(); // и сигнализируем, что в очереди появился элемент.
+            _xmlQueue.Enqueue(item); // Добавляем элемент в очередь для xml
+            _xmlWaitHamdler.Set(); // и сигнализируем, что в очереди появился элемент.
+            _treeQueue.Enqueue(item); // добавляем элемент в очередь для дерева
+            _treeWaitHamdler.Set(); // и сигнализируем, что в очереди появился элемент.
         }
 
         /// <summary>
@@ -209,14 +209,14 @@ namespace FinalTask
             XElement doc = null;
             while (true) //работает все время жизни приложения
             {
-                while (!xmlQueue.IsEmpty)
+                while (!_xmlQueue.IsEmpty)
                 {
-                    var item = xmlQueue.Dequeue();
+                    var item = _xmlQueue.Dequeue();
                     if (item == null) continue;
                     doc = doc.WriteItem(item);
                 }
-                if (isProcessing) // пока еще есть работа
-                    xmlWaitHamdler.WaitOne(); // ожидаем пока в очереди не появится новый элемент
+                if (_isProcessing) // пока еще есть работа
+                    _xmlWaitHamdler.WaitOne(); // ожидаем пока в очереди не появится новый элемент
                 else // иначе работа окончена
                 {
                     if (doc != null) // если была какая-либо работа, то сохраняем все в xml файл. 
@@ -224,9 +224,9 @@ namespace FinalTask
                         doc.Save(pathXML);
                         doc = null;
                     }
-                    waitWorker[0].Set(); // Сигнализируем, что метод закончил свою работу.
-                    waitStart.WaitOne(); // Ожидаем новой работы.
-                    waitWorker[0].Reset(); // Сигнализируем, что метод начал работать.
+                    _waitWorker[0].Set(); // Сигнализируем, что метод закончил свою работу.
+                    _waitStart.WaitOne(); // Ожидаем новой работы.
+                    _waitWorker[0].Reset(); // Сигнализируем, что метод начал работать.
                 }
             }
         }
@@ -239,21 +239,21 @@ namespace FinalTask
             TreeNode node = null;
             while (true) //работает все время жизни приложения
             {
-                while (!treeQueue.IsEmpty)
+                while (!_treeQueue.IsEmpty)
                 {
-                    var item = treeQueue.Dequeue();
+                    var item = _treeQueue.Dequeue();
                     if (item == null) continue;
                     node = node.WriteItem(item);
                 }
-                if (isProcessing) // пока еще есть работа
-                    treeWaitHamdler.WaitOne(); // ожидаем пока в очереди не появится новый элемент
+                if (_isProcessing) // пока еще есть работа
+                    _treeWaitHamdler.WaitOne(); // ожидаем пока в очереди не появится новый элемент
                 else // иначе работа окончена
                 {
                     if (node != null) // если была какая-либо работа, то добавляем все дерево на форму. 
                         BeginInvoke((Action)(() => treeView1.Nodes.Add(node.FirstNode)));
-                    waitWorker[1].Set(); // Сигнализируем, что метод закончил свою работу.
-                    waitStart.WaitOne(); // Ожидаем новой работы.
-                    waitWorker[1].Reset(); // Сигнализируем, что метод начал работать.
+                    _waitWorker[1].Set(); // Сигнализируем, что метод закончил свою работу.
+                    _waitStart.WaitOne(); // Ожидаем новой работы.
+                    _waitWorker[1].Reset(); // Сигнализируем, что метод начал работать.
                     BeginInvoke((Action)treeView1.Nodes.Clear); // Очищаем форму
                     node = new TreeNode(); // и создаем новое дерево.
                 }
@@ -270,11 +270,11 @@ namespace FinalTask
                 MessageBox.Show("Сначала нужно выбрать папку");
                 return;
             }
-            if (error != null) // если в прошлый раз были ошибки, то очищаем форму.
-                error.ClearError();
+            if (_error != null) // если в прошлый раз были ошибки, то очищаем форму.
+                _error.ClearError();
             errorButton.Visible = false; // скрываем кнопку показа ошибок
             ThreadPool.QueueUserWorkItem(collectInfo); // Ставим основной метод в пул потоков.
-            isProcessing = true;
+            _isProcessing = true;
             enableOrDisableButtons(false);
         }
 
@@ -313,11 +313,11 @@ namespace FinalTask
         /// Добавляет исключение на форму с ошибками.
         /// </summary>
         /// <param name="exception">Исключение, которое необходимо добавить</param>
-        void ThreadException(Exception exception)
+        void threadException(Exception exception)
         {
-            if (error == null) // если еще не создавали форму то создадим ее.
-                error = new ErrorForm();
-            error.AddError(exception.Message);
+            if (_error == null) // если еще не создавали форму то создадим ее.
+                _error = new ErrorForm();
+            _error.AddError(exception.Message);
         }
 
         /// <summary>
@@ -326,7 +326,7 @@ namespace FinalTask
         /// </summary>
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (waitWorker.Any(w => !w.WaitOne(0))) // если хотя бы 1 из потокв еще не освободился, то:
+            if (_waitWorker.Any(w => !w.WaitOne(0))) // если хотя бы 1 из потокв еще не освободился, то:
             {
                 if (DialogResult.No ==
                     MessageBox.Show(
@@ -349,7 +349,7 @@ namespace FinalTask
         /// <summary>
         /// Отображает диалоговое окно для выбора файла для сохранения xml результата.
         /// </summary>
-        private void XmlButton_Click(object sender, EventArgs e)
+        private void xmlButton_Click(object sender, EventArgs e)
         {
             if (DialogResult.OK == saveFileDialog1.ShowDialog())
                 label2.Text = saveFileDialog1.FileName;
@@ -360,7 +360,7 @@ namespace FinalTask
         /// </summary>
         private void errorButton_Click(object sender, EventArgs e)
         {
-            error.Show();
+            _error.Show();
         }
     }
 }

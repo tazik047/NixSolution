@@ -98,7 +98,7 @@
             this.xmlButton.TabIndex = 2;
             this.xmlButton.Text = "Изменить";
             this.xmlButton.UseVisualStyleBackColor = true;
-            this.xmlButton.Click += new System.EventHandler(this.XmlButton_Click);
+            this.xmlButton.Click += new System.EventHandler(this.xmlButton_Click);
             // 
             // saveFileDialog1
             // 
