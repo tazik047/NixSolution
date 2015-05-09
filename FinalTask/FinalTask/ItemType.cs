@@ -1,9 +1,12 @@
 ﻿namespace FinalTask
 {
+    /// <summary>
+    /// Тип элемента
+    /// </summary>
     public enum ItemType
     {
-        File,
-        StartFolder,
-        EndFolder
+        File, // файл
+        StartFolder, // начало папки
+        EndFolder // конец папки
     }
 }

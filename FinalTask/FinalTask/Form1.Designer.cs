@@ -39,7 +39,7 @@
             this.startButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.errorButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -166,18 +166,18 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Путь к XML";
             // 
-            // button1
+            // errorButton
             // 
-            this.button1.BackColor = System.Drawing.Color.White;
-            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button1.Location = new System.Drawing.Point(12, 2);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(248, 23);
-            this.button1.TabIndex = 8;
-            this.button1.Text = "Показать ошибки";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Visible = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.errorButton.BackColor = System.Drawing.Color.White;
+            this.errorButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.errorButton.Location = new System.Drawing.Point(12, 2);
+            this.errorButton.Name = "errorButton";
+            this.errorButton.Size = new System.Drawing.Size(248, 23);
+            this.errorButton.TabIndex = 8;
+            this.errorButton.Text = "Показать ошибки";
+            this.errorButton.UseVisualStyleBackColor = false;
+            this.errorButton.Visible = false;
+            this.errorButton.Click += new System.EventHandler(this.errorButton_Click);
             // 
             // Form1
             // 
@@ -185,7 +185,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.YellowGreen;
             this.ClientSize = new System.Drawing.Size(540, 518);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.errorButton);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.startButton);
@@ -216,7 +216,7 @@
         private System.Windows.Forms.Button startButton;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button errorButton;
     }
 }
 
