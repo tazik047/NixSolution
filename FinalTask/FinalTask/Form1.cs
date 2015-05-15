@@ -186,6 +186,15 @@ namespace FinalTask
                     Type = ItemType.EndFolder
                 };
             }
+            catch (IOException e)
+            {
+                this.NotifyException(threadException, e);
+                item = new Item()
+                {
+                    Name = directoryInfo.Name + " (ошибка чтения)",
+                    Type = ItemType.EndFolder
+                };
+            }
             addItemAndSetHandler(item);
         }
 
