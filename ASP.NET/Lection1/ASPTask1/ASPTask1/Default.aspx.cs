@@ -6,6 +6,24 @@ namespace ASPTask1
 {
     public partial class Default : System.Web.UI.Page
     {
+        protected override void OnInit(EventArgs e)
+        {
+            log("OnInit");
+            base.OnInit(e);
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            log("OnLoad");
+            base.OnLoad(e);
+        }
+
+        protected override void OnInitComplete(EventArgs e)
+        {
+            log("OnInitComplete");
+            base.OnInitComplete(e);
+        }
+
         protected void Page_PreInit(object sender, EventArgs e)
         {
             log("Page_PreInit");
