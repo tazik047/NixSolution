@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="ASPTask2.Default" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="ASPTask2.Default" Trace="true" TraceMode="SortByCategory"%>
 
 <!DOCTYPE html>
 
@@ -11,6 +11,7 @@
     <form id="form1" runat="server">
     <div>
         <%=Application["count"] %>
+        <asp:Label ID="Label1" runat="server" Text="Label" EnableViewState="False"></asp:Label>
         <asp:Button ID="Button1" runat="server" Text="Button" />
     </div>
     </form>
