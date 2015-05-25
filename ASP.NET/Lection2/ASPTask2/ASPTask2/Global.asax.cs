@@ -21,22 +21,17 @@ namespace ASPTask2
             Session["LastAccess"] = DateTime.Now.ToShortDateString();
         }
 
-        void Application_PreRequestHandlerExecute(object sender, EventArgs e)
-        {
-            if (Session["LastAccess"].Equals(DateTime.Now.ToShortDateString())) return;
-            Session_Start(sender, e);
-        }
-
         void Application_PostRequestHandlerExecute(object sender, EventArgs e)
         {
-            //SiteStatsBLL.Request(HttpContext.Current);
-            Response.Write(Request.UserAgent + "<br />");
+            /*Response.Write(Request.UserAgent + "<br />");
             Response.Write(Request.UserHostAddress + "<br />");
             Response.Write(Request.UserHostName + "<br />");
-            Response.Write(Request.Path + "<br />");
-            if(!Session["LastAccess"].Equals(DateTime.Now.ToShortDateString()))
-                StatsCounter.OpenNewSession();
+            Response.Write(Request.Path + "<br />");*/
             StatsCounter.IncRequest();
+            if (HttpContext.Current.Session == null) return;
+            string s = Session["LastAccess"].ToString();
+            if (s.Equals(DateTime.Now.ToShortDateString())) return;
+            Session_Start(sender, e);
         } 
 
         protected void Application_End(object sender, EventArgs e)

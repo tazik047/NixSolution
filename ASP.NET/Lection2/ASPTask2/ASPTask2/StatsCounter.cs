@@ -52,7 +52,12 @@ namespace ASPTask2
                }
            }*/
             var application = HttpContext.Current.Application;
-            xml = new XDocument("stats",
+            updateElement(countRequest,"count",application[countRequest]);
+            updateElement(countRequestToday, "count", application[countRequestToday]);
+            updateElement(countUniqueUsers, "count", application[countUniqueUsers]);
+            updateElement(countUniqueUsersToday, "count", application[countUniqueUsersToday]);
+            updateElement(currentDay, "date", application[currentDay]);
+            /*xml = new XDocument("stats",
                 new XElement(countRequest,
                     new XAttribute("count", application[countRequest])),
                 new XElement(countRequestToday,
@@ -62,13 +67,26 @@ namespace ASPTask2
                 new XElement(countUniqueUsersToday,
                     new XAttribute("count", application[countUniqueUsersToday])),
                 new XElement(currentDay,
-                    new XAttribute("count", application[currentDay])));
+                    new XAttribute("date", application[currentDay])));*/
+
             var settings = WebConfigurationManager.GetSection("siteStats") as SiteStatsSettings;
+            if(xml.Root.Element("Pages")!=null)
+                xml.Root.Element("Pages").Remove();
             foreach (var page in settings.Pages)
                 xml.Add(new XElement("Pages"),
                     new XAttribute("name", page),
                     new XAttribute("count", application[page]));
             xml.Save(_path);
+        }
+
+        private static void updateElement(string key, string nameAttribute, object value)
+        {
+            var element = xml.Root.Element(key);
+            if (element == null)
+                xml.Root.Add(new XElement(key,
+                    new XAttribute(nameAttribute, value)));
+            else
+                element.Attribute(nameAttribute).Value = value.ToString();
         }
 
         public static void Load()
@@ -110,9 +128,10 @@ namespace ASPTask2
         {
             var request = HttpContext.Current.Request;
             var application = HttpContext.Current.Application;
+            checkNextDay(application);
             if (isUnique(uniqueUsersData, request))
             {
-                incValue(application,countUniqueUsers);
+                incValue(application, countUniqueUsers);
                 addUserElement(uniqueUsersData, request);
             }
             if (isUnique(uniqueUsersTodayData, request))
@@ -183,7 +202,16 @@ namespace ASPTask2
             sb.AppendFormat(format, "Количество запросов за сегодня", application[countRequestToday]);
             sb.AppendFormat(format, "Общее количество уникальных пользователей", application[countUniqueUsers]);
             sb.AppendFormat(format, "Количество уникальных пользователей за сегодня", application[countUniqueUsersToday]);
-            sb.Append("</div>");
+            var settings = WebConfigurationManager.GetSection("siteStats") as SiteStatsSettings;
+            sb.Append("<div class=\"item\">Статистика по страницам:");
+            string appUrl = HttpContext.Current.Request.ApplicationPath.Substring(0,
+                HttpContext.Current.Request.ApplicationPath.Length - 1);
+            foreach (var page in settings.Pages)
+            {
+                sb.AppendFormat("<div class = \"sub-item\"><a href = \"{2}{0}\">{0}</a> - запросов <i>{1}</i></div>", 
+                    page, application[page], appUrl);
+            }
+            sb.Append("</div></div>");
             return sb.ToString();
         }
     }
