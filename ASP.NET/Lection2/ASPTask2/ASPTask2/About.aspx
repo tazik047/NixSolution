@@ -7,7 +7,7 @@
 
 <asp:Content runat="server" ID="content" ContentPlaceHolderID="content">
     <div class="content">
-        <p>Сайт разработан Станиславом Задорожним.</p>
+        <p>Сайт разработан Задорожним Станиславом.</p>
         <p>&copy; 2015</p>
     </div>
 </asp:Content>
