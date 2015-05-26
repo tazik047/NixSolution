@@ -35,39 +35,12 @@ namespace ASPTask2
 
         public static void Save()
         {
-            /* if (settings.Pages.Contains(currentPage))
-           {
-               var pageCounter =
-                   xml.Root.Elements("Pages").FirstOrDefault(x => x.Attribute("name").Value == currentPage);
-               if (pageCounter != null)
-               {
-                   c = Convert.ToInt32(pageCounter.Attribute("count").Value) + 1;
-                   pageCounter.Attribute("count").Value = c.ToString();
-               }
-               else
-               {
-                   xml.Root.Add(new XElement("Pages"), 
-                       new XAttribute("name", currentPage), 
-                       new XAttribute("count", 1));
-               }
-           }*/
             var application = HttpContext.Current.Application;
             updateElement(countRequest,"count",application[countRequest]);
             updateElement(countRequestToday, "count", application[countRequestToday]);
             updateElement(countUniqueUsers, "count", application[countUniqueUsers]);
             updateElement(countUniqueUsersToday, "count", application[countUniqueUsersToday]);
             updateElement(currentDay, "date", application[currentDay]);
-            /*xml = new XDocument("stats",
-                new XElement(countRequest,
-                    new XAttribute("count", application[countRequest])),
-                new XElement(countRequestToday,
-                    new XAttribute("count", application[countRequestToday])),
-                new XElement(countUniqueUsers,
-                    new XAttribute("count", application[countUniqueUsers])),
-                new XElement(countUniqueUsersToday,
-                    new XAttribute("count", application[countUniqueUsersToday])),
-                new XElement(currentDay,
-                    new XAttribute("date", application[currentDay])));*/
 
             var settings = WebConfigurationManager.GetSection("siteStats") as SiteStatsSettings;
             if(xml.Root.Element("Pages")!=null)
@@ -173,7 +146,7 @@ namespace ASPTask2
 
             var currentPage = HttpContext.Current.Request.Path;
             var settings = WebConfigurationManager.GetSection("siteStats") as SiteStatsSettings;
-            if (settings.Pages.Contains(currentPage))
+            if (settings.Pages.Contains(currentPage.ToLower()))
                 incValue(application, currentPage);
         }
 

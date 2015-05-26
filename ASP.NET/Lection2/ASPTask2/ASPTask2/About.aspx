@@ -1,17 +1,13 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="About.aspx.cs" Inherits="ASPTask2.About" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="About.aspx.cs" Inherits="ASPTask2.About" MasterPageFile="main.Master"%>
 
-<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>About</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-    <div>
-    
+<asp:Content runat="server" ID="headContent" ContentPlaceHolderID="head">
+    <title>Главная</title>
+</asp:Content>
+
+<asp:Content runat="server" ID="content" ContentPlaceHolderID="content">
+    <div class="content">
+        <p>Сайт разработан Станиславом Задорожним.</p>
+        <p>&copy; 2015</p>
     </div>
-    </form>
-</body>
-</html>
+</asp:Content>

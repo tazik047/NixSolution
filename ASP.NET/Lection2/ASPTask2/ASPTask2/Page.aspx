@@ -1,17 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Page.aspx.cs" Inherits="ASPTask2.Page" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Page.aspx.cs" Inherits="ASPTask2.Page" MasterPageFile="main.Master"%>
 
-<!DOCTYPE html>
+<asp:Content runat="server" ID="headContent" ContentPlaceHolderID="head">
+    <title>Страница</title>
+</asp:Content>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Page</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-    <div>
-    
+<asp:Content runat="server" ID="content" ContentPlaceHolderID="content">
+    <div class="content">
+        <asp:Label runat="server" Text="Это обычная страница, для которой не ведется статистика"></asp:Label>
     </div>
-    </form>
-</body>
-</html>
+</asp:Content>

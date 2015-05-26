@@ -1,17 +1,27 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Help.aspx.cs" Inherits="ASPTask2.Help" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Help.aspx.cs" Inherits="ASPTask2.Help" MasterPageFile="../main.Master" %>
 
-<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Help</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-    <div>
-    
+<asp:Content runat="server" ID="headContent" ContentPlaceHolderID="head">
+    <title>Помощь</title>
+</asp:Content>
+
+<asp:Content runat="server" ID="content" ContentPlaceHolderID="content">
+    <div class="content">
+        <h2>Задание:</h2>
+        <p>Создать страницу для отображения статистики web-приложения. Она должна содержать в себе следующую информацию:</p>
+        <ol>
+            <li>Количество запросов к web-приложению (за все время).</li>
+            <li>Количество запросов к web-приложению (за день).</li>
+            <li>Количество запросов к конкретной странице (за все время).</li>
+            <li>Количество уникальных посетителей (за все время).</li>
+            <li>Количество посетителей (за день).</li>
+        </ol>
+        <p>
+            Нельзя использовать IIS Counters. Реализация должна быть основана на 
+            основании материала из текущего модуля (Session, Application и так далее)<br />
+            Список страниц, для которых необходимо отображать статистику, должен хранится в 
+            текстовом файле. Путь к файлу хранить в файле web.config. Для тестирования создать не менее 3 страниц.
+        </p>
+
     </div>
-    </form>
-</body>
-</html>
+</asp:Content>

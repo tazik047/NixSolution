@@ -1,7 +1,20 @@
 ﻿.menu {
+    width: 25%;
+    float: left;
+}
+
+#Menu1 ul>li>a{
+    margin-bottom: 5px;
+}
+
+div#Menu1 a.level1 {
+    background-color: white !important;
+    border: none !important;
 }
 
 .content {
+    width: 65%;
+    float: left;
 }
 
 .item {
@@ -19,8 +32,8 @@
     background-color: aliceblue;
 }
 
-.sub-item > i,
-.item > i {
+    .sub-item > i,
+    .item > i {
         color: rgb(210, 52, 148);
         font-weight: bold;
-}
+    }

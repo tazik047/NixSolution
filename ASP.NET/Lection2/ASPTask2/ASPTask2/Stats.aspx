@@ -1,23 +1,11 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Stats.aspx.cs" Inherits="ASPTask2.Stats" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Stats.aspx.cs" Inherits="ASPTask2.Stats" MasterPageFile="main.Master" %>
 
-<!DOCTYPE html>
+<asp:Content runat="server" ID="headContent" ContentPlaceHolderID="head">
+    <title>Статистика</title>
+</asp:Content>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head runat="server">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Statistics</title>
-</head>
-<body>
-    <form id="form1" runat="server">
-        <div class="menu">
-            <ul>
-                <li></li>
-            </ul>
-        </div>
-    <div class ="content">
-        <asp:Button ID="Button1" runat="server" Text="Обновить" />
+<asp:Content runat="server" ID="content" ContentPlaceHolderID="content">
+    <div class="content">
         <asp:Label ID="Label1" runat="server" Text="Label" EnableViewState="False"></asp:Label>
     </div>
-    </form>
-</body>
-</html>
+</asp:Content>
