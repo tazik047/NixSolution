@@ -1,3 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <stats>
+  <TotalUsersInfo>
+    <User ip="::1" dns="::1" browser="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36" />
+  </TotalUsersInfo>
+  <UsersTodayInfo>
+    <User ip="::1" dns="::1" browser="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36" />
+  </UsersTodayInfo>
+  <TotalRequest count="11" />
+  <RequestToday count="11" />
+  <TotalUsers count="1" />
+  <UsersToday count="1" />
+  <CurrentDay date="27.05.2015 14:47:19" />
+  <Pages>
+    <Page name="about.aspx" count="0" />
+    <Page name="stats.aspx" count="2" />
+    <Page name="dir/help.aspx" count="1" />
+  </Pages>
 </stats>

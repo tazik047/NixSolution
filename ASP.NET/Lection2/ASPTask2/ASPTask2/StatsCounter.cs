@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -11,10 +12,7 @@ namespace ASPTask2
 {
     public static class StatsCounter
     {
-        private static string _path
-        {
-            get { return HttpContext.Current.Server.MapPath("Stats.xml"); }
-        }
+        private static string _path;
 
         private static XDocument xml;
 
@@ -48,10 +46,17 @@ namespace ASPTask2
                 var settings = WebConfigurationManager.GetSection("siteStats") as SiteStatsSettings;
                 if (xml.Root.Element("Pages") != null)
                     xml.Root.Element("Pages").Remove();
-                foreach (var page in settings.Pages)
-                    xml.Add(new XElement("Pages"),
-                        new XAttribute("name", page),
-                        new XAttribute("count", application[page]));
+                var ps = settings.Pages.Select(p => new XElement("Page",
+                    new XAttribute("name", p),
+                    new XAttribute("count", application[p])))
+                    .ToArray();
+                xml.Root.Add(new XElement("Pages", ps));
+                /* foreach (var page in settings.Pages)
+                     xml.Add(new XElement("Pages"),
+                         new XAttribute("name", page),
+                         new XAttribute("count", application[page]));*/
+                if (!File.Exists(_path))
+                    File.Create(_path);
                 xml.Save(_path);
             }
         }
@@ -70,6 +75,7 @@ namespace ASPTask2
         {
             lock (locker)
             {
+                _path = HttpContext.Current.Server.MapPath("Stats.xml");
                 xml = XDocument.Load(_path);
                 var application = HttpContext.Current.Application;
 
@@ -160,7 +166,7 @@ namespace ASPTask2
             }
             var app = HttpContext.Current.Request.ApplicationPath;
             var currentPage = HttpContext.Current.Request.CurrentExecutionFilePath.Substring(
-                app.Length + (app == "\\" ? 0 : 1));
+                app.Length + (app == "/" ? 0 : 1));
 
             //var t = HttpContext.Current.Request;
             var settings = WebConfigurationManager.GetSection("siteStats") as SiteStatsSettings;
@@ -200,13 +206,13 @@ namespace ASPTask2
                 var settings = WebConfigurationManager.GetSection("siteStats") as SiteStatsSettings;
                 sb.Append("<div class=\"item\">Статистика по страницам:");
                 string appUrl = HttpContext.Current.Request.ApplicationPath;
-               /* if (appUrl != "\\")
-                    appUrl = appUrl.Substring(0, appUrl.Length - 1);*/
+                /* if (appUrl != "\\")
+                     appUrl = appUrl.Substring(0, appUrl.Length - 1);*/
                 foreach (var page in settings.Pages)
                 {
                     sb.AppendFormat(
                         "<div class = \"sub-item\"><a href = \"{2}{3}{0}\">{0}</a> - запросов <i>{1}</i></div>",
-                        page, application[page], appUrl, appUrl=="\\"?"":"\\");
+                        page, application[page], appUrl, appUrl == "\\" ? "" : "\\");
                 }
             }
             sb.Append("</div></div>");
