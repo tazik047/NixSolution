@@ -11,12 +11,6 @@ namespace Task
     /// </summary>
     abstract class Fish : Being, IUnderwater
     {
-        // У всех рыб нет ног.
-        public override int CountLegs
-        {
-            get { return 0; }
-        }
-
         public void Breathe()
         {
             Console.WriteLine("Дышу зябрами.");

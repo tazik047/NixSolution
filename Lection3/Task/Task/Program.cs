@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Task
 {
@@ -27,20 +25,19 @@ namespace Task
             CanBreatheUnderwater(collection);
         }
 
-        //Считает количество ног у последовательности живых существ.
         static int CountLegs(IEnumerable<Being> beings)
         {
-            return beings.Sum(b => b.CountLegs);
+            return beings.OfType<Animal>().Sum(a => a.CountLegs);
         }
 
-        //Выводит ID существ, которые могут дышать под водой.
+        // Displays ID beings who can breathe underwater.
         static void CanBreatheUnderwater(IEnumerable<Being> beings)
         {
             foreach (var i in beings)
             {
-                //Если объект реализует интерфейс IUnderwater, то он может дышать под водой
+                // If a being implement IUnderwater, than it can breathe underwater.
                 if (i is IUnderwater)
-                    Console.WriteLine("\tТип животного: {0},\t id = {1}", i.GetType().Name, i.BiengId);
+                    Console.WriteLine("\tТип животного: {0},\t id = {1}", i.GetType().Name, i.BeingId);
             }
         }
     }

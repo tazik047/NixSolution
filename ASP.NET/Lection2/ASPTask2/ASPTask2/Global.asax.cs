@@ -30,17 +30,18 @@ namespace ASPTask2
         /// <summary>
         /// Событие, возникающее после завершения выполнения обработчика событий приложения ASP.NET
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         void Application_PostRequestHandlerExecute(object sender, EventArgs e)
         {
             StatsCounter.IncRequest();
-            if (HttpContext.Current.Session == null) return;
+            if (HttpContext.Current.Session == null) return; //проверяем существование сессии
             string s = Session["LastAccess"].ToString();
-            if (s.Equals(DateTime.Now.ToShortDateString())) return;
-            Session_Start(sender, e);
+            if (!s.Equals(DateTime.Now.ToShortDateString())) // если дата создания сессии не равна текущей дате
+                Session_Start(sender, e);
         } 
         
+        /// <summary>
+        /// Событие возникающее после обработки запроса.
+        /// </summary>
         protected void Application_EndRequest(object sender, EventArgs e)
         {
             StatsCounter.Save();

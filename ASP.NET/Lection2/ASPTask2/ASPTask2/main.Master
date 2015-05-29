@@ -1,0 +1,26 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="main.master.cs" Inherits="ASPTask2.main" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="main.css" rel="stylesheet" />
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div class="menu">
+            <asp:Menu ID="Menu1" runat="server" DataSourceID="SiteMapDataSource1" MaximumDynamicDisplayLevels="0" RenderingMode="List" StaticDisplayLevels="3" StaticMenuItemStyle-BackColor="#FFFF99" StaticMenuItemStyle-BorderColor="#0033CC" StaticMenuItemStyle-BorderStyle="Solid" StaticMenuItemStyle-BorderWidth="1" StaticHoverStyle-BackColor="#CC9900" StaticHoverStyle-BorderStyle="Dotted" StaticMenuItemStyle-Width="95%" StaticMenuItemStyle-VerticalPadding="5px" StaticMenuItemStyle-ItemSpacing="5px" StaticMenuItemStyle-HorizontalPadding="5px" StaticMenuItemStyle-Height="25px" StaticMenuStyle-HorizontalPadding="15px" StaticSelectedStyle-BorderStyle="Dotted" StaticSelectedStyle-BackColor="#CC9900">
+                <StaticHoverStyle BackColor="#CC9900" BorderStyle="Dotted" />
+                <StaticMenuItemStyle BackColor="#FFFF99" BorderColor="#0033CC" BorderStyle="Solid" BorderWidth="1px" Height="25px" HorizontalPadding="5px" ItemSpacing="5px" VerticalPadding="5px" Width="95%" />
+                <StaticSelectedStyle BackColor="#CC9900" BorderStyle="Dotted" />
+            </asp:Menu>
+            <asp:SiteMapDataSource ID="SiteMapDataSource1" runat="server" />
+        </div>
+        <asp:ContentPlaceHolder ID="content" runat="server">
+        </asp:ContentPlaceHolder>
+    </form>
+</body>
+</html>

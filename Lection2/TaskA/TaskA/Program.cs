@@ -11,9 +11,9 @@ namespace TaskA
         static void Main(string[] args)
         {
             FunWithFor();
-            FunWithDoWhile();
-            FunWithWhile();
-            FunWithForeach();
+            //FunWithDoWhile();
+            //FunWithWhile();
+            //FunWithForeach();
         }
 
         static void FunWithFor()

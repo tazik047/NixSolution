@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Task
 {
@@ -14,6 +10,11 @@ namespace Task
         public override int CountLegs
         {
             get { return 4; }
+        }
+
+        public Horse()
+        {
+            BeingId = Guid.NewGuid().ToString();
         }
 
         public void EatHay()

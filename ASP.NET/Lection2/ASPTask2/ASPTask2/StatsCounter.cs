@@ -10,10 +10,19 @@ using System.Xml.Linq;
 
 namespace ASPTask2
 {
+    /// <summary>
+    /// Класс для работы со статистикой
+    /// </summary>
     public static class StatsCounter
     {
+        /// <summary>
+        /// Путь для хранения данных со статистикой
+        /// </summary>
         private static string _path;
 
+        /// <summary>
+        /// 
+        /// </summary>
         private static XDocument xml;
 
         private const string countRequest = "TotalRequest";
@@ -30,7 +39,7 @@ namespace ASPTask2
 
         private const string currentDay = "CurrentDay";
 
-        private static object locker = new object();
+        private static readonly object locker = new object();
 
         public static void Save()
         {
